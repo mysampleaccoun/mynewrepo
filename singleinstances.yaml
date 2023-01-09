@@ -1,0 +1,39 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Single-instance web server
+Parameters:
+  Subnet:
+    Type: AWS::EC2::Subnet::Id
+    Description: Where the instance will be placed
+  IamInstanceProfile:
+    Type: String
+    Description: It would be a good idea to put the name of the SSM instance role here.
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+    - t3.nano
+    - t3.micro
+    - t3.small
+    - m1.medium
+  
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          sudo amazon-linux-extras install ngnix1 -y
+          sudo service nginx start
+      ImageId: ami-074dc0a6f6c764218
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroupIds:
+        - Ref: SecurityGroup
+      SubnetId:
+        Ref: Subnet
+      IamInstanceProfile:
+        Ref: IamInstanceProfile
